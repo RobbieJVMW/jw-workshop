@@ -2,7 +2,7 @@ properties([pipelineTriggers([githubPush()])])
 
 node {
     stage ('Checkout'){
-        git branch: 'master', url: 'https://github.com/bbrundert/jw-workshop.git'
+        git branch: 'master', url: 'https://github.com/robbiejvmw/jw-workshop.git'
     }
 } 
 
@@ -17,7 +17,7 @@ pipeline {
     stage('Docker Build') {
       steps {
         container('docker'){
-          sh 'docker build -t bbrundert/jw-workshop:latest .'
+          sh 'docker build -t robbiej/jw-workshop:latest .'
         }
       }
     }
@@ -26,7 +26,7 @@ pipeline {
         container('docker'){
           withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
             sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-            sh 'docker push bbrundert/jw-workshop:latest'
+            sh 'docker push robbiej/jw-workshop:latest'
           }
         }
       }
@@ -37,7 +37,7 @@ pipeline {
           withCredentials([usernamePassword(credentialsId: 'VCS', usernameVariable: 'orgID', passwordVariable: 'apiToken')]) {
             sh "vke account login -t ${env.orgID} -r ${env.apiToken}"
             sh '''
-                 vke cluster merge-kubectl-auth bbrundert-devops
+                 vke cluster merge-kubectl-auth rjerrom-jenkins
 		 kubectl delete namespace jw-workshop || true
                  sleep 5
                  kubectl create namespace jw-workshop
